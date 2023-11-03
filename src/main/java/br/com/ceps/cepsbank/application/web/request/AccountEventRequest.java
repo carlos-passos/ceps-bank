@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 @Data
 public class AccountEventRequest {
 
-    private Long id;
+    private AccountEventTypeRequest type;
+    private String destination;
+    private String origin;
     private BigDecimal balance;
 }
