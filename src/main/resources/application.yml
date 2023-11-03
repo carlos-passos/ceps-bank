@@ -1,1 +1,3 @@
-
+server:
+  servlet:
+  context-path: /ceps-bank/api/v1/
