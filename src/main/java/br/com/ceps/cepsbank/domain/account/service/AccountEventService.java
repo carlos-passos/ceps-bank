@@ -7,6 +7,6 @@ import org.springframework.stereotype.Service;
 public class AccountEventService {
 
     public Account makeTransaction(Account account) {
-        return null;
+        return new Account();
     }
 }
