@@ -1,0 +1,10 @@
+{
+  "origin": {
+    "id": "100",
+    "balance": 0
+  },
+  "destination": {
+    "id": "300",
+    "balance": 15
+  }
+}
