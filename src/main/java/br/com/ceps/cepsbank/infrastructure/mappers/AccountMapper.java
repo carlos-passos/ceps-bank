@@ -14,8 +14,10 @@ public interface AccountMapper {
     AccountMapper MAPPER = Mappers.getMapper(AccountMapper.class);
 
     @Mappings({
-            @Mapping(target = "origin.balance", source = "origin"),
-            @Mapping(target = "destination.balance", source = "destination")
+            @Mapping(target = "origin.id", source = "origin"),
+            @Mapping(target = "destination.id", source = "destination"),
+            @Mapping(target = "origin.balance", source = "amount"),
+            @Mapping(target = "destination.balance", source = "amount")
     })
     Account toDomain(AccountEventRequest request);
     AccountResponse toResponse(Account domain);

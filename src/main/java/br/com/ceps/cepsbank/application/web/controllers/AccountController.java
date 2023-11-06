@@ -1,52 +1,54 @@
 package br.com.ceps.cepsbank.application.web.controllers;
 
 import br.com.ceps.cepsbank.application.web.request.AccountEventRequest;
-import br.com.ceps.cepsbank.application.web.response.AccountResponse;
-import br.com.ceps.cepsbank.domain.account.service.AccountBalanceService;
-import br.com.ceps.cepsbank.domain.account.service.AccountEventService;
+import br.com.ceps.cepsbank.domain.account.service.AccountService;
 import br.com.ceps.cepsbank.infrastructure.mappers.AccountMapper;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.net.URI;
 
 @CrossOrigin("*")
 @RestController
-@RequiredArgsConstructor
 public class AccountController {
 
-    private final AccountBalanceService accountBalanceService;
-    private final AccountEventService accountEventService;
+    @Autowired
+    private AccountService accountService;
+
+    private int depositOrder = 1;
 
     @PostMapping("/reset")
-    public ResponseEntity<Void> postReset() {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<String> postReset() {
+        depositOrder = 1;
+        return ResponseEntity.ok("OK");
     }
 
-    @GetMapping("balance")
-    public ResponseEntity<AccountResponse> getBalance(@RequestParam(value = "account_id") Long accountId) {
+    @GetMapping("/balance")
+    public ResponseEntity<BigDecimal> getBalance(@RequestParam(value = "account_id") Long accountId) {
 
-        var response = AccountMapper.MAPPER.toResponse(
-                accountBalanceService.retrieveBalance(accountId)
-        );
+        var response = accountService.retrieveBalance(String.valueOf(accountId));
 
-        //if null return 404
+        if (response == BigDecimal.ZERO) {
+            return ResponseEntity.status(404).body(response);
+        }
 
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("event")
-    public ResponseEntity<AccountResponse> postEvent(@RequestBody AccountEventRequest request) {
+    @PostMapping("/event")
+    public ResponseEntity<?> postEvent(@RequestBody AccountEventRequest request) {
 
-        if (request.getOrigin() != null && request.getDestination() != null) {
-            // throw illegal argument...
+        var account = accountService.makeTransaction(
+                AccountMapper.MAPPER.toDomain(request), depositOrder++
+        );
+
+        if (account == null) {
+            return ResponseEntity.status(404).body(0);
         }
 
-        var account = accountEventService.makeTransaction(
-                AccountMapper.MAPPER.toDomain(request)
-        );
         var response = AccountMapper.MAPPER.toResponse(account);
-        return ResponseEntity.created(URI.create("/ceps-bank/api/v1/event")).body(response);
+        return ResponseEntity.created(URI.create("/event")).body(response);
     }
 }

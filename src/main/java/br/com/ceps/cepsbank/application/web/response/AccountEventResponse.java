@@ -6,5 +6,5 @@ import java.math.BigDecimal;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AccountEventResponse(
-        Long id,
+        String id,
         BigDecimal balance){}
